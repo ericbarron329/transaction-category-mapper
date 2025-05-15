@@ -74,10 +74,12 @@ let fileData = null;
 fileInput.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (file) {
+        console.log('File selected:', file.name);
         fileName.textContent = file.name;
         processButton.disabled = false;
         fileData = file;
     } else {
+        console.log('No file selected');
         fileName.textContent = '';
         processButton.disabled = true;
         fileData = null;
@@ -85,7 +87,12 @@ fileInput.addEventListener('change', (e) => {
 });
 
 processButton.addEventListener('click', () => {
-    if (!fileData) return;
+    console.log('Process button clicked');
+    if (!fileData) {
+        console.log('No file data available');
+        return;
+    }
+    console.log('Processing file...');
 
     Papa.parse(fileData, {
         complete: processData,
@@ -95,19 +102,33 @@ processButton.addEventListener('click', () => {
 });
 
 function processData(results) {
+    console.log('Parse results:', results);
+    
     if (results.errors.length > 0) {
-        summary.textContent = 'Error processing file: ' + results.errors[0].message;
+        const errorMsg = 'Error processing file: ' + results.errors[0].message;
+        console.error(errorMsg);
+        summary.textContent = errorMsg;
         return;
     }
 
     const data = results.data;
+    if (data.length === 0) {
+        console.error('No data rows found in file');
+        summary.textContent = 'Error: No data rows found in file';
+        return;
+    }
+
+    console.log('CSV Headers:', Object.keys(data[0]));
+    console.log('First row:', data[0]);
     
     // Process each row
     const processedData = data.map(row => {
         const category = row.Category?.trim() || '';
+        const newCategory = categoryMapping[category] || category;
+        console.log(`Mapping category: "${category}" -> "${newCategory}"`);
         return {
             ...row,
-            'New Category': categoryMapping[category] || category
+            'New Category': newCategory
         };
     });
 
@@ -116,6 +137,7 @@ function processData(results) {
     processedData.forEach(row => {
         const category = row['New Category'];
         const amount = parseFloat(row.Amount) || 0;
+        console.log(`Processing amount for ${category}: ${row.Amount} -> ${amount}`);
         
         if (!categorySummary[category]) {
             categorySummary[category] = {
@@ -138,6 +160,7 @@ function processData(results) {
             summaryText += `  Total: $${stats.total.toFixed(2)}\n\n`;
         });
     
+    console.log('Summary:', summaryText);
     summary.textContent = summaryText;
 
     // Create download link
