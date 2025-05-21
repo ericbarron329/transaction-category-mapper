@@ -15,7 +15,7 @@
         <div class="mapping-section">
             <h2>Category Mappings</h2>
             <div class="mapping-controls">
-                <button onclick="addNewMapping()" class="add-button">Add Category Mapping</button>
+                <button id="addCategoryBtn" class="add-button">Add Category Mapping</button>
             </div>
             <table id="categoryTable" class="mapping-table">
                 <tr>
@@ -29,7 +29,7 @@
         <div class="mapping-section">
             <h2>Description Mappings</h2>
             <div class="mapping-controls">
-                <button onclick="addNewDescriptionMapping()" class="add-button">Add Description Mapping</button>
+                <button id="addDescriptionBtn" class="add-button">Add Description Mapping</button>
             </div>
             <table id="descriptionTable" class="mapping-table">
                 <tr>
@@ -60,13 +60,5 @@
         </div>
     </div>
     <script src="script.js"></script>
-    <script>
-        window.addNewMapping = addNewMapping;
-        window.addNewDescriptionMapping = addNewDescriptionMapping;
-        window.editMapping = editMapping;
-        window.deleteMapping = deleteMapping;
-        window.editDescriptionMapping = editDescriptionMapping;
-        window.deleteDescriptionMapping = deleteDescriptionMapping;
-    </script>
 </body>
 </html> 
