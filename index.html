@@ -5,10 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Category Mapper</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>Transaction Category Mapper</h1>
+        <h1>Category Mapper</h1>
+        
+        <!-- Mapping Management Section -->
+        <div class="mapping-section">
+            <h2>Category Mappings</h2>
+            <div class="mapping-controls">
+                <button onclick="addNewMapping()" class="add-button">Add Category Mapping</button>
+            </div>
+            <table id="categoryTable" class="mapping-table">
+                <tr>
+                    <th>Original Category</th>
+                    <th>New Category</th>
+                    <th>Actions</th>
+                </tr>
+            </table>
+        </div>
+
+        <div class="mapping-section">
+            <h2>Description Mappings</h2>
+            <div class="mapping-controls">
+                <button onclick="addNewDescriptionMapping()" class="add-button">Add Description Mapping</button>
+            </div>
+            <table id="descriptionTable" class="mapping-table">
+                <tr>
+                    <th>Original Description</th>
+                    <th>New Description</th>
+                    <th>Actions</th>
+                </tr>
+            </table>
+        </div>
+
         <div class="upload-section">
             <div class="file-upload">
                 <input type="file" id="csvFile" accept=".csv" class="file-input">
@@ -28,7 +59,6 @@
             <div id="summary" class="summary"></div>
         </div>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html> 
