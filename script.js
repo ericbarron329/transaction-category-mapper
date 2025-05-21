@@ -124,24 +124,70 @@ function updateDescriptionMapping(original, newDescription) {
 
 // Function to handle adding new category mappings
 function addNewMapping() {
-    const original = prompt('Enter original category:');
-    if (original) {
-        const newCategory = prompt('Enter new category:');
-        if (newCategory) {
-            saveMapping(original, newCategory);
+    // Prevent multiple input rows
+    if (document.getElementById('addCategoryRow')) return;
+
+    const categoryTable = document.getElementById('categoryTable');
+    const row = document.createElement('tr');
+    row.id = 'addCategoryRow';
+
+    row.innerHTML = `
+        <td><input type="text" id="newCategoryKey" placeholder="Original Category" style="width: 90%"></td>
+        <td><input type="text" id="newCategoryValue" placeholder="New Category" style="width: 90%"></td>
+        <td>
+            <button id="submitCategoryBtn" class="add-button" style="margin-right: 8px;">Submit</button>
+            <button id="cancelCategoryBtn" style="background:#ccc;">Cancel</button>
+        </td>
+    `;
+
+    // Insert the input row after the header
+    categoryTable.insertBefore(row, categoryTable.children[1]);
+
+    document.getElementById('submitCategoryBtn').onclick = function() {
+        const key = document.getElementById('newCategoryKey').value.trim();
+        const value = document.getElementById('newCategoryValue').value.trim();
+        if (key && value) {
+            saveMapping(key, value);
+            row.remove();
         }
-    }
+    };
+    document.getElementById('cancelCategoryBtn').onclick = function() {
+        row.remove();
+    };
 }
 
 // Function to handle adding new description mappings
 function addNewDescriptionMapping() {
-    const original = prompt('Enter original description:');
-    if (original) {
-        const newDescription = prompt('Enter new description:');
-        if (newDescription) {
-            saveDescriptionMapping(original, newDescription);
+    // Prevent multiple input rows
+    if (document.getElementById('addDescriptionRow')) return;
+
+    const descriptionTable = document.getElementById('descriptionTable');
+    const row = document.createElement('tr');
+    row.id = 'addDescriptionRow';
+
+    row.innerHTML = `
+        <td><input type="text" id="newDescriptionKey" placeholder="Original Description" style="width: 90%"></td>
+        <td><input type="text" id="newDescriptionValue" placeholder="New Description" style="width: 90%"></td>
+        <td>
+            <button id="submitDescriptionBtn" class="add-button" style="margin-right: 8px;">Submit</button>
+            <button id="cancelDescriptionBtn" style="background:#ccc;">Cancel</button>
+        </td>
+    `;
+
+    // Insert the input row after the header
+    descriptionTable.insertBefore(row, descriptionTable.children[1]);
+
+    document.getElementById('submitDescriptionBtn').onclick = function() {
+        const key = document.getElementById('newDescriptionKey').value.trim();
+        const value = document.getElementById('newDescriptionValue').value.trim();
+        if (key && value) {
+            saveDescriptionMapping(key, value);
+            row.remove();
         }
-    }
+    };
+    document.getElementById('cancelDescriptionBtn').onclick = function() {
+        row.remove();
+    };
 }
 
 // Function to handle editing category mappings
@@ -320,4 +366,8 @@ function processData(results) {
     downloadLink.href = url;
     downloadLink.download = 'processed_' + fileData.name;
     downloadLink.style.display = 'inline-block';
-} 
+}
+
+// Add event listeners for the buttons (in JS, not HTML)
+document.getElementById('addCategoryBtn').addEventListener('click', addNewMapping);
+document.getElementById('addDescriptionBtn').addEventListener('click', addNewDescriptionMapping); 
