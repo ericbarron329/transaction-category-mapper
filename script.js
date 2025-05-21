@@ -369,5 +369,7 @@ function processData(results) {
 }
 
 // Add event listeners for the buttons (in JS, not HTML)
-document.getElementById('addCategoryBtn').addEventListener('click', addNewMapping);
-document.getElementById('addDescriptionBtn').addEventListener('click', addNewDescriptionMapping); 
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('addCategoryBtn').addEventListener('click', addNewMapping);
+    document.getElementById('addDescriptionBtn').addEventListener('click', addNewDescriptionMapping);
+}); 
