@@ -62,7 +62,33 @@ let categoryMapping = {
     "Balance Adjustments": "Transfer"
 };
 
-let descriptionMapping = {};
+let descriptionMapping = {
+    "Pharmacy": "Pharmacy",
+    "Walgreens": "Pharmacy",
+    "Rite Aid": "Pharmacy",
+    "Spotify USA": "Streaming Services/Subscriptions",
+    "HENRY MEDS": "Personal Care",
+    "ADT SECURITY": "Security",
+    "ORACLE PARK": "Entertainment - General",
+    "AVIS RENT-A-CAR": "Car Rental",
+    "DELTA": "Airfare/Transportation",
+    "SOUTHWES": "Airfare/Transportation",
+    "UNITED": "Airfare/Transportation",
+    "TURO": "Car Rental",
+    "7-ELEVEN": "Gas/Convenience Stores",
+    "AMZN Mktp": "Amazon",
+    "Amazon.com": "Amazon",
+    "AMAZON RETA": "Amazon",
+    "AMAZON MKTPLACE": "Amazon",
+    "AMAZON MKTPL": "Amazon",
+    "Audible": "Books/Kindle",
+    "COSTCO WHSE": "Groceries",
+    "Kindle Svcs": "Books/Kindle",
+    "MACY'S": "Clothing",
+    "NIKE.COM": "Clothing",
+    "NORDSTROM": "Clothing",
+    "Payment to The New York Times Co.": "Streaming Services/Subscriptions"
+};
 
 // Load mappings from localStorage
 function loadMappings() {
@@ -167,7 +193,7 @@ function addNewDescriptionMapping() {
 
     row.innerHTML = `
         <td><input type="text" id="newDescriptionKey" placeholder="Original Description" style="width: 90%"></td>
-        <td><input type="text" id="newDescriptionValue" placeholder="New Description" style="width: 90%"></td>
+        <td><input type="text" id="newDescriptionValue" placeholder="New Category" style="width: 90%"></td>
         <td>
             <button id="submitDescriptionBtn" class="add-button" style="margin-right: 8px;">Submit</button>
             <button id="cancelDescriptionBtn" style="background:#ccc;">Cancel</button>
@@ -239,7 +265,7 @@ function updateDescriptionTable() {
     descriptionTable.innerHTML = `
         <tr>
             <th>Original Description</th>
-            <th>New Description</th>
+            <th>New Category</th>
             <th>Actions</th>
         </tr>
     `;
@@ -309,14 +335,15 @@ function processData(results) {
     
     // Process each row
     const processedData = data.map(row => {
+
+        // Get the category and description from the row
         const category = row.Category?.trim() || '';
         const description = row.Description?.trim() || '';
         
-        // First apply category mapping
+        // First apply category mapping, then description mapping
         let newCategory = categoryMapping[category] || category;
-        
-        // Partial, case-insensitive match for description mapping
         const descLower = description.toLowerCase();
+
         for (const [key, value] of Object.entries(descriptionMapping)) {
             if (key && descLower.includes(key.trim().toLowerCase())) {
                 newCategory = value;

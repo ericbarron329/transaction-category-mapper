@@ -34,7 +34,7 @@
             <table id="descriptionTable" class="mapping-table">
                 <tr>
                     <th>Original Description</th>
-                    <th>New Description</th>
+                    <th>New Category</th>
                     <th>Actions</th>
                 </tr>
             </table>
@@ -60,5 +60,9 @@
         </div>
     </div>
     <script src="script.js"></script>
+    <script>
+        document.getElementById('addCategoryBtn').addEventListener('click', addNewMapping);
+        document.getElementById('addDescriptionBtn').addEventListener('click', addNewDescriptionMapping);
+    </script>
 </body>
 </html> 
