@@ -96,10 +96,12 @@ function loadMappings() {
     const savedDescriptionMappings = localStorage.getItem('descriptionMapping');
     
     if (savedCategoryMappings) {
-        categoryMapping = JSON.parse(savedCategoryMappings);
+        const savedMappings = JSON.parse(savedCategoryMappings);
+        categoryMapping = { ...categoryMapping, ...savedMappings };
     }
     if (savedDescriptionMappings) {
-        descriptionMapping = JSON.parse(savedDescriptionMappings);
+        const savedMappings = JSON.parse(savedDescriptionMappings);
+        descriptionMapping = { ...descriptionMapping, ...savedMappings };
     }
     
     updateMappingTable();
@@ -109,14 +111,18 @@ function loadMappings() {
 // Function to save category mapping to localStorage
 function saveMapping(original, newCategory) {
     categoryMapping[original] = newCategory;
-    localStorage.setItem('categoryMapping', JSON.stringify(categoryMapping));
+    const savedMappings = JSON.parse(localStorage.getItem('categoryMapping') || '{}');
+    savedMappings[original] = newCategory;
+    localStorage.setItem('categoryMapping', JSON.stringify(savedMappings));
     updateMappingTable();
 }
 
 // Function to save description mapping to localStorage
 function saveDescriptionMapping(original, newDescription) {
     descriptionMapping[original] = newDescription;
-    localStorage.setItem('descriptionMapping', JSON.stringify(descriptionMapping));
+    const savedMappings = JSON.parse(localStorage.getItem('descriptionMapping') || '{}');
+    savedMappings[original] = newDescription;
+    localStorage.setItem('descriptionMapping', JSON.stringify(savedMappings));
     updateDescriptionTable();
 }
 
