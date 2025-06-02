@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Google Sheets to DOCX</title>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+</head>
+<body>
+  <h2>Google Sheets → DOCX Exporter</h2>
+
+  <input type="text" id="sheetUrl" placeholder="Paste Google Sheets URL" size="60" />
+  <button id="loadBtn">Load Sheet</button>
+
+  <pre id="output">Waiting for input...</pre>
+
+  <script type="module">
+    import { extractValuesFromSheets } from '../scripts/2_ExcelParserToDoc.js';
+
+    document.getElementById('loadBtn').addEventListener('click', async () => {
+      const url = document.getElementById('sheetUrl').value;
+      const output = document.getElementById('output');
+      console.log("test");
+      output.textContent = "Loading sheet data...";
+
+      try {
+        const data = await extractValuesFromSheets(url);
+        output.textContent = JSON.stringify(data, null, 2);
+        // await fillDocxWithHello();
+      } catch (err) {
+        output.textContent = `Error: ${err.message}`;
+      }
+    });
+  </script>
+</body>
+</html>

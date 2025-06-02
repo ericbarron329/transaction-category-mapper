@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category Mapper</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Category Mapper</h1>
+        
+        <!-- Mapping Management Section -->
+        <div class="mapping-section">
+            <h2>Category Mappings</h2>
+            <div class="mapping-controls">
+                <button id="addCategoryBtn" class="add-button">Add Category Mapping</button>
+            </div>
+            <table id="categoryTable" class="mapping-table">
+                <tr>
+                    <th>Original Category</th>
+                    <th>New Category</th>
+                    <th>Actions</th>
+                </tr>
+            </table>
+        </div>
+
+        <div class="mapping-section">
+            <h2>Description Mappings</h2>
+            <div class="mapping-controls">
+                <button id="addDescriptionBtn" class="add-button">Add Description Mapping</button>
+            </div>
+            <table id="descriptionTable" class="mapping-table">
+                <tr>
+                    <th>Original Description</th>
+                    <th>New Category</th>
+                    <th>Actions</th>
+                </tr>
+            </table>
+        </div>
+
+        <div class="upload-section">
+            <div class="file-upload">
+                <input type="file" id="csvFile" accept=".csv" class="file-input">
+                <label for="csvFile" class="file-label">
+                    <span>Choose CSV File</span>
+                </label>
+            </div>
+            <div id="fileName" class="file-name"></div>
+            <div class="button-group">
+                <button id="processButton" class="process-button" disabled>Process Categories</button>
+                <a id="downloadLink" class="download-button" style="display: none;">
+                    Download Processed File
+                </a>
+            </div>
+        </div>
+        <div id="results" class="results-section">
+            <div id="summary" class="summary"></div>
+        </div>
+    </div>
+    <script src="../scripts/1_CategoryMapperScript.js"></script>
+    <script>
+        document.getElementById('addCategoryBtn').addEventListener('click', addNewMapping);
+        document.getElementById('addDescriptionBtn').addEventListener('click', addNewDescriptionMapping);
+    </script>
+</body>
+</html> 
