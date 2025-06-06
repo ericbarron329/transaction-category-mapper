@@ -45,9 +45,9 @@ function processSheetData(data) {
         }
 
         for (const row of netWorthData) {
-            if (row[1] === "Projected Monthly Surplus (deficit)") {
+            if (row[1] && row[1].includes("Projected Monthly Surplus")) {
                 if (row[2]) {
-                    values["22"] = row[3];
+                    values["22"] = row[4];
                 }
                 break;
             }
@@ -62,11 +62,11 @@ function processSheetData(data) {
         for (const row of cashFlowData) {
             if (row[1] === "Breakeven Point (Gross Income)") {
                 breakevenCount++;
-                if (row[2]) {
+                if (row[3]) {
                     if (breakevenCount === 1) {
-                        values["2"] = row[2];
+                        values["2"] = row[3];
                     } else if (breakevenCount === 2) {
-                        values["3"] = row[2];
+                        values["3"] = row[3];
                     }
                 }
                 if (breakevenCount === 2) break;
@@ -76,7 +76,7 @@ function processSheetData(data) {
         for (const row of cashFlowData) {
             if (row[1] === "Total W2 Income") {
                 if (row[2]) {
-                    values["4"] = row[2];
+                    values["4"] = row[3];
                     values["5"] = row[4];
                 }
                 break;
@@ -112,7 +112,7 @@ function processSheetData(data) {
         for (const row of cashFlowData) {
             if (row[1] === "Effective Tax Rate") {
                 if (row[4]) {
-                    values["11"] = row[4];
+                    values["11"] = row[5];
                 }
                 break;
             }
@@ -189,7 +189,7 @@ function processSheetData(data) {
             if (row[1] === "Total Liabilities") {
                 const liabilities = parseFloat(row[2].replace(/[^0-9.-]+/g, "")) || 0;
                 if (values["temp_assets"]) { // If we already have Total Assets
-                    const difference = liabilities - values["temp_assets"];
+                    const difference = values["temp_assets"] - liabilities;
                     values["23"] = "$ " + difference.toLocaleString();
                 } else {
                     values["temp_liabilities"] = liabilities;
@@ -198,7 +198,7 @@ function processSheetData(data) {
             if (row[1] === "Total Assets") {
                 const assets = parseFloat(row[2].replace(/[^0-9.-]+/g, "")) || 0;
                 if (values["temp_liabilities"]) { // If we already have Total Liabilities
-                    const difference = values["temp_liabilities"] - assets;
+                    const difference = assets - values["temp_liabilities"];
                     values["23"] = "$ " + difference.toLocaleString();
                 } else {
                     values["temp_assets"] = assets;
@@ -283,10 +283,13 @@ function processSheetData(data) {
             if (row[1] && row[1].includes("Current Annual")) {
                 values["38"] = row[2];
             }
+            if (row[1] && row[1].includes("Shortfall")) {
+                values["39"] = row[2];
+            }
         }
     }
 
-    
+    console.log("Values: ", values);
 
     return values;
 }
@@ -346,7 +349,7 @@ export async function generateDocument(sheetUrl) {
         // Step 3: Generate the document with our values
         await fillDocxWithValues(values);
         
-        return true;
+        return { values, sheetData };
     } catch (error) {
         console.error('Error in document generation pipeline:', error);
         throw error;
