@@ -54,7 +54,7 @@ function processSheetData(data) {
         values["40"] = "$0";
         values["41"] = "$0";
         for (const row of netWorthData) {
-            if (row[1] === "Other Investments") {
+            if (row[1] === "Retirement Assets") {
                 if (row[2]) {
                     values["40"] = cleanDollarAmount(row[2]);
                 }
@@ -117,6 +117,18 @@ function processSheetData(data) {
                 }
             }
         }
+
+        let offSet = 0;
+        for (const row of cashFlowData) {
+            if (row[1] && row[1].includes("Projected Annual Surplus")) {
+                offSet++;
+                if (offSet === 2) {
+                    values["8"] = cleanDollarAmount(row[3]);
+                    break;
+                }
+            }
+        }
+
         // Check if the value contains parentheses to determine if it's a deficit
         if (values["7"] && values["7"].toString().includes("(")) {
             values["6"] = "deficit";
@@ -155,7 +167,7 @@ function processSheetData(data) {
         const expensesData = data["Expenses"];
         for (let i = 0; i < expensesData.length; i++) {
             const row = expensesData[i];
-            if (row[1] === "Total w/o Taxes & Travel") {
+            if (row[1] && row[1].includes("Total w/o")) {
                 values["12"] = cleanDollarAmount(row[7]);
                 if (i > 0) {
                     values["13"] = cleanDollarAmount(expensesData[i-1][7]);
@@ -234,10 +246,10 @@ function processSheetData(data) {
                     values["temp_liabilities"] = liabilities;
                 }
             }
-            if (row[1] === "Total Assets") {
+            if (row[1] === "Mortgages") {
                 const assets = parseFloat(row[2].replace(/[^0-9.-]+/g, "")) || 0;
-                if (values["temp_liabilities"]) { // If we already have Total Liabilities
-                    const difference = assets - values["temp_liabilities"];
+                if (values["temp_liabilities"]) {
+                    const difference = values["temp_liabilities"] - assets;
                     values["23"] = cleanDollarAmount(difference.toLocaleString());
                 } else {
                     values["temp_assets"] = assets;
