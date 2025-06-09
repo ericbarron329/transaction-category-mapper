@@ -278,10 +278,36 @@ function processSheetData(data) {
         for (const row of netWorthData) {
             if (row[1] === "Total Liabilities") {
                 const liabilities = parseFloat(row[2].replace(/[^0-9.-]+/g, "")) || 0;
-                if (values["temp_assets"]) { // If we already have Total Assets
-                    const difference = values["temp_assets"] - liabilities;
-                    values["23"] = cleanDollarAmount(difference.toLocaleString(), 0);
+                console.log('Debug - Liabilities:', {
+                    rawValue: row[2],
+                    parsedLiabilities: liabilities,
+                    tempAssets: values["temp_assets"]
+                });
+
+                if (values["temp_assets"]) {
+                    // Parse the assets value by removing $ and commas
+                    const assets = parseFloat(values["temp_assets"].replace(/[^0-9.-]+/g, "")) || 0;
+                    const difference = Math.abs(assets - liabilities);
+                    console.log('Debug - Calculation:', {
+                        rawAssets: values["temp_assets"],
+                        parsedAssets: assets,
+                        liabilities: liabilities,
+                        difference: difference
+                    });
+                    
+                    if (isNaN(difference)) {
+                        console.error('NaN detected in calculation:', {
+                            rawAssets: values["temp_assets"],
+                            parsedAssets: assets,
+                            liabilities: liabilities,
+                            row: row
+                        });
+                        values["23"] = "Error: Invalid calculation";
+                    } else {
+                        values["23"] = cleanDollarAmount(difference.toLocaleString(), 0);
+                    }
                 } else {
+                    console.log('Debug - No temp_assets found, storing liabilities:', liabilities);
                     values["temp_liabilities"] = liabilities;
                 }
             }
