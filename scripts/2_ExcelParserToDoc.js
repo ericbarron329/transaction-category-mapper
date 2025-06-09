@@ -29,22 +29,29 @@ export async function extractValuesFromSheets(sheetUrl) {
 
 function cleanDollarAmount(value, roundDigits) {
     if (!value) return value;
-    // Remove any existing dollar sign and spaces
-    let cleaned = value.toString().replace(/\$|\s/g, '');
+    // Remove any existing dollar sign, spaces, and parentheses
+    let cleaned = value.toString().replace(/[\$\s\(\)]/g, '');
+    
+    // If the original value had parentheses, make the number negative
+    const isNegative = value.toString().includes('(');
     
     if (roundDigits > 0) {
         // Convert to number
         let num = parseFloat(cleaned.replace(/,/g, ''));
+        // Make negative if it was in parentheses
+        if (isNegative) num = -num;
         // Calculate the rounding factor (e.g., 10 for 1 digit, 100 for 2 digits)
         const roundFactor = Math.pow(10, roundDigits);
         // Round to the specified number of digits
         num = Math.round(num / roundFactor) * roundFactor;
         // Format with commas and add dollar sign
-        return `$${num.toLocaleString()}`;
+        return `$${Math.abs(num).toLocaleString()}`;
     }
     
     // If no rounding specified, just add back the dollar sign
-    return `$${cleaned}`;
+    let num = parseFloat(cleaned.replace(/,/g, ''));
+    if (isNegative) num = -num;
+    return `$${Math.abs(num).toLocaleString()}`;
 }
 
 function processSheetData(data) {
@@ -125,9 +132,12 @@ function processSheetData(data) {
             if (row[1] && row[1].includes("Projected Monthly Surplus")) {
                 monthlySurplusCount++;
                 if (monthlySurplusCount === 2) {  // Only process the second occurrence
-                    if (row[2]) {
+                    console.log("Processing second occurrence");
+                    if (row[3]) {
+                        console.log("Row[3] exists:", row[3]);
                         // Store the original value before formatting
                         const originalMonthlySurplus = row[3];
+                        values["555"] = originalMonthlySurplus;  // Store the original value
                         values["7"] = cleanDollarAmount(row[3], 2);
 
                         // Get the value from the next row
