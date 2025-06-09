@@ -7,7 +7,7 @@ export async function extractValuesFromSheets(sheetUrl) {
     const sheetNames = ["Data Input", "Net Worth", "Transactions Raw", 
         "Cash Flow", "Merchant Expense Analysis", "Assumptions", "Expenses", 
         "Positions", "Retirement Calculator", "Retirement Summary", "Investment Accounts", 
-        "Education Accounts", "Education Summary", "New Home"]; 
+        "Education Accounts", "Education Summary", "New Home", "Term Life Calc"]; 
   
     const results = {};
   
@@ -27,11 +27,23 @@ export async function extractValuesFromSheets(sheetUrl) {
     return results;
 }
 
-function cleanDollarAmount(value) {
+function cleanDollarAmount(value, roundDigits) {
     if (!value) return value;
     // Remove any existing dollar sign and spaces
     let cleaned = value.toString().replace(/\$|\s/g, '');
-    // Add back the dollar sign without space
+    
+    if (roundDigits > 0) {
+        // Convert to number
+        let num = parseFloat(cleaned.replace(/,/g, ''));
+        // Calculate the rounding factor (e.g., 10 for 1 digit, 100 for 2 digits)
+        const roundFactor = Math.pow(10, roundDigits);
+        // Round to the specified number of digits
+        num = Math.round(num / roundFactor) * roundFactor;
+        // Format with commas and add dollar sign
+        return `$${num.toLocaleString()}`;
+    }
+    
+    // If no rounding specified, just add back the dollar sign
     return `$${cleaned}`;
 }
 
@@ -46,7 +58,7 @@ function processSheetData(data) {
         for (const row of netWorthData) {
             if (row[1] === "Net Worth") {
                 if (row[2]) {
-                    values["1"] = cleanDollarAmount(row[2]);
+                    values["1"] = cleanDollarAmount(row[2], 3);
                 }
                 break;
             }
@@ -56,17 +68,29 @@ function processSheetData(data) {
         for (const row of netWorthData) {
             if (row[1] === "Retirement Assets") {
                 if (row[2]) {
-                    values["40"] = cleanDollarAmount(row[2]);
+                    values["40"] = cleanDollarAmount(row[2], 2);
                 }
             }
             if (row[1] === "Other Investments") {
                 if (row[2]) {
-                    values["41"] = cleanDollarAmount(row[2]);
+                    values["41"] = cleanDollarAmount(row[2], 2);
                 }
             }
         }
     }
     //END FINANCIAL GOALS
+
+    if (data["Term Life Calc"]) {
+        const termLifeCalcData = data["Term Life Calc"];
+        // Get C10 (row 9, column 2) and round last 2 digits
+        if (termLifeCalcData[9] && termLifeCalcData[9][2]) {
+            values["43"] = cleanDollarAmount(termLifeCalcData[9][2], 2);
+        }
+        // Get F10 (row 9, column 5) and round last digit
+        if (termLifeCalcData[9] && termLifeCalcData[9][5]) {
+            values["44"] = cleanDollarAmount(termLifeCalcData[9][5], 1);
+        }
+    }
 
     // CASH FLOW
     if (data["Cash Flow"]) {
@@ -77,9 +101,9 @@ function processSheetData(data) {
                 breakevenCount++;
                 if (row[3]) {
                     if (breakevenCount === 1) {
-                        values["2"] = cleanDollarAmount(row[3]);
+                        values["2"] = cleanDollarAmount(row[3], 0);
                     } else if (breakevenCount === 2) {
-                        values["3"] = cleanDollarAmount(row[3]);
+                        values["3"] = cleanDollarAmount(row[3], 0);
                     }
                 }
                 if (breakevenCount === 2) break;
@@ -89,8 +113,8 @@ function processSheetData(data) {
         for (const row of cashFlowData) {
             if (row[1] === "Total W2 Income") {
                 if (row[2]) {
-                    values["4"] = cleanDollarAmount(row[3]);
-                    values["5"] = cleanDollarAmount(row[5]);
+                    values["4"] = cleanDollarAmount(row[3], 0);
+                    values["5"] = cleanDollarAmount(row[5], 0);
                 }
                 break;
             }
@@ -102,14 +126,14 @@ function processSheetData(data) {
                 monthlySurplusCount++;
                 if (monthlySurplusCount === 2) {  // Only process the second occurrence
                     if (row[2]) {
-                        values["7"] = cleanDollarAmount(row[3]);
+                        values["7"] = cleanDollarAmount(row[3], 2);
 
                         // Get the value from the next row
                         const currentIndex = cashFlowData.indexOf(row);
                         if (currentIndex + 1 < cashFlowData.length) {
                             const nextRow = cashFlowData[currentIndex + 1];
                             if (nextRow && nextRow[3]) {
-                                values["9"] = cleanDollarAmount(nextRow[3]);
+                                values["9"] = cleanDollarAmount(nextRow[3], 0);
                             }
                         }
                     }
@@ -123,7 +147,7 @@ function processSheetData(data) {
             if (row[1] && row[1].includes("Projected Annual Surplus")) {
                 offSet++;
                 if (offSet === 2) {
-                    values["8"] = cleanDollarAmount(row[3]);
+                    values["8"] = cleanDollarAmount(row[3], 2);
                     break;
                 }
             }
@@ -141,7 +165,7 @@ function processSheetData(data) {
         for (const row of cashFlowData) {
             if (row[1] === "Effective Tax Rate") {
                 if (row[4]) {
-                    values["11"] = cleanDollarAmount(row[5]);
+                    values["11"] = row[5];
                 }
                 break;
             }
@@ -154,7 +178,7 @@ function processSheetData(data) {
                 if (monthlySurplusCount2 === 2) {  // Only process the second occurrence
                     if (row[3]) {
                         const hasParentheses = row[3].toString().includes('(');
-                        values["22"] = cleanDollarAmount(row[3]);
+                        values["22"] = cleanDollarAmount(row[3], 2);
                         values["21"] = hasParentheses ? "deficit" : "surplus";
                     }
                     break;
@@ -168,10 +192,10 @@ function processSheetData(data) {
         for (let i = 0; i < expensesData.length; i++) {
             const row = expensesData[i];
             if (row[1] && row[1].includes("Total w/o")) {
-                values["12"] = cleanDollarAmount(row[7]);
+                values["12"] = cleanDollarAmount(row[7], 2);
                 if (i > 0) {
-                    values["13"] = cleanDollarAmount(expensesData[i-1][7]);
-                    values["14"] = cleanDollarAmount(expensesData[i-1][6]);
+                    values["13"] = cleanDollarAmount(expensesData[i-1][7], 2);
+                    values["14"] = cleanDollarAmount(expensesData[i-1][6], 2);
                 }
                 break;
             }
@@ -179,30 +203,52 @@ function processSheetData(data) {
 
         for (const row of expensesData) {
             if (row[1] === "Food") {
-                values["15"] = cleanDollarAmount(row[7]);
+                values["15"] = cleanDollarAmount(row[7], 0);
             }
             if (row[1] === "Shopping") {
-                values["16"] = cleanDollarAmount(row[7]);
+                values["16"] = cleanDollarAmount(row[7], 0);
             }
             if (row[1] === "Travel") {
-                values["17"] = cleanDollarAmount(row[6]);
+                values["17"] = cleanDollarAmount(row[6], 0);
             }
             if (row[1] === "Entertainment") {
-                values["18"] = cleanDollarAmount(row[7]);
+                values["18"] = cleanDollarAmount(row[7], 0);
             }
             if (row[1] === "Health / Personal Care") {
-                values["19"] = cleanDollarAmount(row[7]);
+                values["19"] = cleanDollarAmount(row[7], 0);
             }
         }
+    }
 
+    if (data["Investment Accounts"]) {
+        const investmentAccountsData = data["Investment Accounts"];
 
+        let sum = 0;
+        for (const row of investmentAccountsData) {
+            if (row[1] === "Total") {
+                values["20"] = cleanDollarAmount(row[2], 3);
+            }
+            // Check each cell in the row for "$1.00"
+            for (let i = 0; i < row.length; i++) {
+                if (row[i] === "$1.00" && i + 1 < row.length) {
+                    // Get the value to the right and add it to sum
+                    const valueToRight = row[i + 1];
+                    if (valueToRight) {
+                        // Remove any non-numeric characters except decimal point and minus sign
+                        const numericValue = parseFloat(valueToRight.toString().replace(/[^0-9.-]+/g, "")) || 0;
+                        sum += numericValue;
+                    }
+                }
+            }
+        }
+        values["sum"] = cleanDollarAmount(sum.toString(), 0);
     }
 
     if (data["Net Worth"]) {
         const netWorthData = data["Net Worth"];
         for (const row of netWorthData) {
             if (row[1] === "Liquid Assets") {
-                values["20"] = cleanDollarAmount(row[2]);
+                values["20"] = cleanDollarAmount(row[2], 0);
                 // if (row[2] && row[2].toString().includes('(')) {
                 //     values["21"] = "deficit";
                 // } else {
@@ -212,27 +258,22 @@ function processSheetData(data) {
         }
 
         for (const row of netWorthData) {
-            // Skip header rows by checking if we're at D3 or beyond
-            const currentIndex = netWorthData.indexOf(row);
-            if (currentIndex >= 2) { // D3 starts at index 2
-                // Start from column 3 (D) and go through all columns
-                for (let col = 3; col < row.length; col++) {
-                    // Get all values in this column from D3 down
-                    let columnValues = [];
-                    for (let i = 2; i < netWorthData.length; i++) {
-                        if (netWorthData[i][col]) {
-                            columnValues.push(netWorthData[i][col]);
-                        }
+            // Find "Net Worth" in the first row
+            if (netWorthData.indexOf(row) === 0) {
+                const netWorthIndex = row.findIndex(cell => cell === "Net Worth");
+                if (netWorthIndex !== -1) {
+                    // Get all values after "Net Worth" until empty string or end
+                    const valuesAfterNetWorth = row.slice(netWorthIndex + 1);
+                    const concatenatedString = valuesAfterNetWorth
+                        .filter(value => value !== '')
+                        .join(', ');
+                    
+                    if (!values['list_main']) {
+                        values['list_main'] = [];
                     }
-                    // Add this column's values to list_main
-                    if (columnValues.length > 0) {
-                        if (!values['list_main']) {
-                            values['list_main'] = [];
-                        }
-                        values['list_main'].push(columnValues.join(', '));
-                    }
+                    values['list_main'].push(concatenatedString);
                 }
-                break; // We only need to process this once
+                break; // We only need to process the first row
             }
         }
 
@@ -241,7 +282,7 @@ function processSheetData(data) {
                 const liabilities = parseFloat(row[2].replace(/[^0-9.-]+/g, "")) || 0;
                 if (values["temp_assets"]) { // If we already have Total Assets
                     const difference = values["temp_assets"] - liabilities;
-                    values["23"] = cleanDollarAmount(difference.toLocaleString());
+                    values["23"] = cleanDollarAmount(difference.toLocaleString(), 0);
                 } else {
                     values["temp_liabilities"] = liabilities;
                 }
@@ -249,8 +290,8 @@ function processSheetData(data) {
             if (row[1] === "Mortgages") {
                 const assets = parseFloat(row[2].replace(/[^0-9.-]+/g, "")) || 0;
                 if (values["temp_liabilities"]) {
-                    const difference = values["temp_liabilities"] - assets;
-                    values["23"] = cleanDollarAmount(difference.toLocaleString());
+                    const difference = Math.abs(values["temp_liabilities"] - assets);
+                    values["23"] = cleanDollarAmount(difference.toLocaleString(), 2);
                 } else {
                     values["temp_assets"] = assets;
                 }
@@ -263,15 +304,15 @@ function processSheetData(data) {
         const educationsSummaryData = data["Education Summary"];
         for (const row of educationsSummaryData) {
             if (row[1] === "Total Annual Contribution:") {
-                values["24"] = row[3];
-                values["26"] = row[2];
+                values["24"] = cleanDollarAmount(row[3], 2);
+                values["26"] = cleanDollarAmount(row[2], 2);
                 // Get the value from the next row
                 const currentIndex = educationsSummaryData.indexOf(row);
                 if (currentIndex + 1 < educationsSummaryData.length) {
                     const nextRow = educationsSummaryData[currentIndex + 1];
                     if (nextRow && nextRow[3]) {
-                        values["25"] = nextRow[3];
-                        values["27"] = nextRow[2];
+                        values["25"] = cleanDollarAmount(nextRow[3], 2);
+                        values["27"] = cleanDollarAmount(nextRow[2], 2);
                     }
                 }
                 break;
@@ -283,19 +324,19 @@ function processSheetData(data) {
         const newHomeData = data["New Home"];
         for (const row of newHomeData) {
             if (row[1] && row[1].includes("Monthly Surplus")) {
-                values["28"] = row[2];
+                values["28"] = cleanDollarAmount(row[2], 2);
             }
         }
 
         for (const row of newHomeData) {
             if (row[1] === "Total Monthly Income") {
-                values["29"] = row[10];
+                values["29"] = cleanDollarAmount(row[10], 2);
                 // Get the value from the next row
                 const currentIndex = newHomeData.indexOf(row);
                 if (currentIndex + 1 < newHomeData.length) {
                     const nextRow = newHomeData[currentIndex + 1];
                     if (nextRow && nextRow[10]) {
-                        values["30"] = nextRow[10];
+                        values["30"] = cleanDollarAmount(nextRow[10], 2);
                     }
                 }
                 break;
@@ -304,16 +345,16 @@ function processSheetData(data) {
 
         for (const row of newHomeData) {
             if (row[1] === "Cost of Home") {
-                values["32"] = cleanDollarAmount(row[3]);
-                values["33"] = cleanDollarAmount(row[4]);
+                values["32"] = cleanDollarAmount(row[3], 0);
+                values["33"] = cleanDollarAmount(row[4], 0);
             }
 
             if (row[1] === "Loan Amount") {
-                values["31"] = cleanDollarAmount(row[3]);
+                values["31"] = cleanDollarAmount(row[3], 0);
             }
 
             if (row[1] === "TOTAL") { 
-                values["34"] = cleanDollarAmount(row[2]);
+                values["34"] = cleanDollarAmount(row[2], 2);
             }
         }
     }
@@ -325,17 +366,17 @@ function processSheetData(data) {
                 values["35"] = row[2];
             }
             if (row[1] === "Lump Sum Required For Retirement In Today's Dollars") {
-                values["36"] = cleanDollarAmount(row[2]);
+                values["36"] = cleanDollarAmount(row[2], 0);
             }
 
             if (row[1] && row[1].includes("Required Annual")) {
-                values["37"] = cleanDollarAmount(row[2]);
+                values["37"] = cleanDollarAmount(row[2], 3);
             }
             if (row[1] && row[1].includes("Current Annual")) {
-                values["38"] = cleanDollarAmount(row[2]);
+                values["38"] = cleanDollarAmount(row[2], 2);
             }
             if (row[1] && row[1].includes("Shortfall")) {
-                values["39"] = cleanDollarAmount(row[2]);
+                values["39"] = cleanDollarAmount(row[2], 3);
             }
         }
     }
