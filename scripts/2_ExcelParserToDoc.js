@@ -23,7 +23,7 @@ export async function extractValuesFromSheets(sheetUrl) {
       const parsed = Papa.parse(csvText, { skipEmptyLines: false });
       results[name] = parsed.data;
     }
-    console.log(results);
+    console.log("Extracted Sheet Data:", results);
     return results;
 }
 
@@ -241,7 +241,7 @@ function processSheetData(data) {
                 }
             }
         }
-        values["sum"] = cleanDollarAmount(sum.toString(), 0);
+        values["sum"] = `$${sum.toLocaleString()}`;
     }
 
     if (data["Net Worth"]) {
@@ -249,31 +249,29 @@ function processSheetData(data) {
         for (const row of netWorthData) {
             if (row[1] === "Liquid Assets") {
                 values["20"] = cleanDollarAmount(row[2], 0);
-                // if (row[2] && row[2].toString().includes('(')) {
-                //     values["21"] = "deficit";
-                // } else {
-                //     values["21"] = "surplus";
-                // }
             }
         }
 
         for (const row of netWorthData) {
-            // Find "Net Worth" in the first row
+            // Only process the first row
             if (netWorthData.indexOf(row) === 0) {
-                const netWorthIndex = row.findIndex(cell => cell === "Net Worth");
-                if (netWorthIndex !== -1) {
-                    // Get all values after "Net Worth" until empty string or end
-                    const valuesAfterNetWorth = row.slice(netWorthIndex + 1);
-                    const concatenatedString = valuesAfterNetWorth
-                        .filter(value => value !== '')
-                        .join(', ');
-                    
-                    if (!values['list_main']) {
-                        values['list_main'] = [];
+                let str1 = "";
+                let foundNetWorth = false;
+                
+                for (let i = 0; i < row.length; i++) {
+                    const cell = row[i];
+                    if (cell === "Net Worth ") {
+                        foundNetWorth = true;
+                    } else if (foundNetWorth && cell && cell.trim() !== '') {
+                        if (str1 !== "") {
+                            str1 += ", ";
+                        }
+                        str1 += cell.trim();
                     }
-                    values['list_main'].push(concatenatedString);
                 }
-                break; // We only need to process the first row
+                
+                values['list_main'] = str1;
+                break;
             }
         }
 
@@ -293,7 +291,7 @@ function processSheetData(data) {
                     const difference = Math.abs(values["temp_liabilities"] - assets);
                     values["23"] = cleanDollarAmount(difference.toLocaleString(), 2);
                 } else {
-                    values["temp_assets"] = assets;
+                    values["temp_assets"] = `$${assets.toLocaleString()}`;
                 }
             }
         }
@@ -434,7 +432,7 @@ export async function generateDocument(sheetUrl) {
         // Step 3: Generate the document with our values
         const docBlob = await fillDocxWithValues(values);
         
-        return { values, docBlob };
+        return { values, docBlob, sheetData };
     } catch (error) {
         console.error('Error in document generation pipeline:', error);
         throw error;

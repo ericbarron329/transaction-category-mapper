@@ -6,15 +6,61 @@
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="https://unpkg.com/docxtemplater@3.37.9/build/docxtemplater.js"></script>
   <script src="https://unpkg.com/pizzip@3.1.6/dist/pizzip.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
   <style>
-    pre {
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
       background-color: #f5f5f5;
+    }
+    h2 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      margin-right: 10px;
+      width: 400px;
+    }
+    button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    #loadBtn {
+      background-color: #2196F3;
+      color: white;
+    }
+    #loadBtn:hover {
+      background-color: #1976D2;
+    }
+    #downloadBtn {
+      background-color: #4CAF50;
+      color: white;
+      margin-left: 10px;
+    }
+    #downloadBtn:hover {
+      background-color: #388E3C;
+    }
+    pre {
+      background-color: white;
       padding: 15px;
       border-radius: 5px;
       overflow-x: auto;
+      border: 1px solid #ddd;
     }
     .values-container {
       margin: 20px 0;
+    }
+    h3 {
+      color: #555;
+      margin-bottom: 10px;
     }
   </style>
 </head>
@@ -23,7 +69,7 @@
 
   <input type="text" id="sheetUrl" placeholder="Paste Google Sheets URL" size="60" />
   <button id="loadBtn">Load Sheet</button>
-  <!-- <button id="generateBtn">Generate DOCX</button> -->
+  <button id="downloadBtn">Download Report</button>
 
   <div class="values-container">
     <h3>Processed Values:</h3>
@@ -38,17 +84,28 @@
   <script type="module">
     import { generateDocument } from '../scripts/2_ExcelParserToDoc.js';
 
+    let currentDocBlob = null;
+
     document.getElementById('loadBtn').addEventListener('click', async () => {
       const url = document.getElementById('sheetUrl').value;
       const output = document.getElementById('output');
       const valuesOutput = document.getElementById('valuesOutput');
+      const downloadBtn = document.getElementById('downloadBtn');
       output.textContent = "Loading sheet data...";
       valuesOutput.textContent = "Processing values...";
+      downloadBtn.style.display = 'none';
+      currentDocBlob = null;
 
       try {
         const result = await generateDocument(url);
         console.log('Raw Sheet Data:', result.sheetData);
         valuesOutput.textContent = JSON.stringify(result.values, null, 2);
+        
+        // Store the document blob for download
+        if (result.docBlob) {
+          currentDocBlob = result.docBlob;
+          downloadBtn.style.display = 'inline-block';
+        }
       } catch (err) {
         output.textContent = `Error: ${err.message}`;
         valuesOutput.textContent = `Error: ${err.message}`;
@@ -56,11 +113,11 @@
       }
     });
 
-    document.getElementById('generateBtn').addEventListener('click', async () => {
-      try {
-        await fillDocxWithValues();
-      } catch (err) {
-        document.getElementById('output').textContent = `Error: ${err.message}`;
+    document.getElementById('downloadBtn').addEventListener('click', () => {
+      if (currentDocBlob) {
+        saveAs(currentDocBlob, 'financial_report.docx');
+      } else {
+        alert('Please generate the report first');
       }
     });
   </script>
