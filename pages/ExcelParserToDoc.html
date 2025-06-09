@@ -304,6 +304,7 @@
         if (result.docBlob) {
           currentDocBlob = result.docBlob;
           downloadBtn.style.display = 'inline-block';
+          loadBtn.style.display = 'none';
           showStatus('Report generated successfully! Click Download to save.', 'success');
         }
       } catch (err) {
@@ -329,6 +330,8 @@
     clearBtn.addEventListener('click', () => {
       sheetUrl.value = '';
       sheetUrl.focus();
+      loadBtn.style.display = 'inline-block';
+      downloadBtn.style.display = 'none';
     });
 
     // Add keyboard shortcut
