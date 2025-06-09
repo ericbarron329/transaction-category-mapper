@@ -7,117 +7,212 @@
   <script src="https://unpkg.com/docxtemplater@3.37.9/build/docxtemplater.js"></script>
   <script src="https://unpkg.com/pizzip@3.1.6/dist/pizzip.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-      background-color: #f5f5f5;
+      font-family: 'Inter', sans-serif;
+      background: #fafafa;
     }
-    h2 {
-      color: #333;
-      margin-bottom: 20px;
+    .card {
+      background: white;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
     }
-    input[type="text"] {
-      padding: 8px 12px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      margin-right: 10px;
-      width: 400px;
-    }
-    button {
-      padding: 8px 16px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: 500;
-    }
-    #loadBtn {
-      background-color: #2196F3;
-      color: white;
-    }
-    #loadBtn:hover {
-      background-color: #1976D2;
-    }
-    #downloadBtn {
-      background-color: #4CAF50;
-      color: white;
-      margin-left: 10px;
-    }
-    #downloadBtn:hover {
-      background-color: #388E3C;
+    .card:hover {
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
     pre {
-      background-color: white;
-      padding: 15px;
-      border-radius: 5px;
+      background: #fafafa;
+      border: 1px solid #eee;
+      border-radius: 6px;
+      padding: 12px;
+      font-size: 13px;
+      line-height: 1.5;
       overflow-x: auto;
-      border: 1px solid #ddd;
+      transition: all 0.2s ease;
     }
-    .values-container {
-      margin: 20px 0;
+    pre:hover {
+      border-color: #e0e0e0;
     }
-    h3 {
-      color: #555;
-      margin-bottom: 10px;
+    .btn {
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn:after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 5px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.5);
+      opacity: 0;
+      border-radius: 100%;
+      transform: scale(1, 1) translate(-50%);
+      transform-origin: 50% 50%;
+    }
+    .btn:focus:not(:active)::after {
+      animation: ripple 1s ease-out;
+    }
+    @keyframes ripple {
+      0% {
+        transform: scale(0, 0);
+        opacity: 0.5;
+      }
+      100% {
+        transform: scale(20, 20);
+        opacity: 0;
+      }
+    }
+    .input-field {
+      transition: all 0.2s ease;
+    }
+    .input-field:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    .status-message {
+      animation: slideIn 0.3s ease-out;
+    }
+    @keyframes slideIn {
+      from {
+        transform: translateY(-10px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
     }
   </style>
 </head>
-<body>
-  <h2>Google Sheets → DOCX Exporter</h2>
+<body class="min-h-screen p-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="card rounded-lg p-6">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h1 class="text-xl font-semibold text-gray-900">Financial Report Generator</h1>
+          <p class="text-sm text-gray-500 mt-1">Transform your Google Sheets data into professional reports</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="relative">
+            <input type="text" id="sheetUrl" 
+                   class="input-field w-96 px-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none"
+                   placeholder="Paste your Google Sheets URL" />
+          </div>
+          <button id="loadBtn" 
+                  class="btn px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+            Generate Report
+          </button>
+          <button id="downloadBtn" style="display: none;"
+                  class="btn px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+            Download Report
+          </button>
+        </div>
+      </div>
 
-  <input type="text" id="sheetUrl" placeholder="Paste Google Sheets URL" size="60" />
-  <button id="loadBtn">Load Sheet</button>
-  <button id="downloadBtn">Download Report</button>
+      <div id="status" class="mb-6"></div>
 
-  <div class="values-container">
-    <h3>Processed Values:</h3>
-    <pre id="valuesOutput">Waiting for input...</pre>
-  </div>
-
-  <div class="values-container">
-    <h3>Raw Data:</h3>
-    <pre id="output">Waiting for input...</pre>
+      <div class="grid grid-cols-2 gap-6">
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-sm font-medium text-gray-700">Processed Values</h3>
+            <span class="text-xs text-gray-400">Formatted data ready for the report</span>
+          </div>
+          <pre id="valuesOutput">Waiting for input...</pre>
+        </div>
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-sm font-medium text-gray-700">Raw Data</h3>
+            <span class="text-xs text-gray-400">Original sheet data</span>
+          </div>
+          <pre id="output">Waiting for input...</pre>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script type="module">
     import { generateDocument } from '../scripts/2_ExcelParserToDoc.js';
 
     let currentDocBlob = null;
+    const status = document.getElementById('status');
+    const loadBtn = document.getElementById('loadBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const sheetUrl = document.getElementById('sheetUrl');
 
-    document.getElementById('loadBtn').addEventListener('click', async () => {
-      const url = document.getElementById('sheetUrl').value;
+    function showStatus(message, type = 'info') {
+      const colors = {
+        info: 'bg-blue-50 text-blue-700 border-blue-200',
+        success: 'bg-green-50 text-green-700 border-green-200',
+        error: 'bg-red-50 text-red-700 border-red-200'
+      };
+      status.innerHTML = `
+        <div class="status-message ${colors[type]} px-4 py-3 rounded-lg border text-sm">
+          ${message}
+        </div>
+      `;
+    }
+
+    function setLoading(isLoading) {
+      loadBtn.disabled = isLoading;
+      loadBtn.innerHTML = isLoading ? 
+        '<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Processing...' : 
+        'Generate Report';
+    }
+
+    loadBtn.addEventListener('click', async () => {
+      if (!sheetUrl.value) {
+        showStatus('Please enter a Google Sheets URL', 'error');
+        sheetUrl.focus();
+        return;
+      }
+
       const output = document.getElementById('output');
       const valuesOutput = document.getElementById('valuesOutput');
-      const downloadBtn = document.getElementById('downloadBtn');
+      
       output.textContent = "Loading sheet data...";
       valuesOutput.textContent = "Processing values...";
       downloadBtn.style.display = 'none';
       currentDocBlob = null;
+      showStatus('Processing your data...', 'info');
+      setLoading(true);
 
       try {
-        const result = await generateDocument(url);
+        const result = await generateDocument(sheetUrl.value);
         console.log('Raw Sheet Data:', result.sheetData);
         valuesOutput.textContent = JSON.stringify(result.values, null, 2);
         
-        // Store the document blob for download
         if (result.docBlob) {
           currentDocBlob = result.docBlob;
           downloadBtn.style.display = 'inline-block';
+          showStatus('Report generated successfully! Click Download to save.', 'success');
         }
       } catch (err) {
         output.textContent = `Error: ${err.message}`;
         valuesOutput.textContent = `Error: ${err.message}`;
+        showStatus(`Error: ${err.message}`, 'error');
         console.error('Error:', err);
+      } finally {
+        setLoading(false);
       }
     });
 
-    document.getElementById('downloadBtn').addEventListener('click', () => {
+    downloadBtn.addEventListener('click', () => {
       if (currentDocBlob) {
         saveAs(currentDocBlob, 'financial_report.docx');
+        showStatus('Report downloaded successfully!', 'success');
       } else {
-        alert('Please generate the report first');
+        showStatus('Please generate the report first', 'error');
+      }
+    });
+
+    // Add keyboard shortcut
+    sheetUrl.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && !loadBtn.disabled) {
+        loadBtn.click();
       }
     });
   </script>
