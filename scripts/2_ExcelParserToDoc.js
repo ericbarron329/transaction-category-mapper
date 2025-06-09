@@ -126,6 +126,8 @@ function processSheetData(data) {
                 monthlySurplusCount++;
                 if (monthlySurplusCount === 2) {  // Only process the second occurrence
                     if (row[2]) {
+                        // Store the original value before formatting
+                        const originalMonthlySurplus = row[3];
                         values["7"] = cleanDollarAmount(row[3], 2);
 
                         // Get the value from the next row
@@ -135,6 +137,15 @@ function processSheetData(data) {
                             if (nextRow && nextRow[3]) {
                                 values["9"] = cleanDollarAmount(nextRow[3], 0);
                             }
+                        }
+
+                        // Check if the original value contains parentheses to determine if it's a deficit
+                        if (originalMonthlySurplus && originalMonthlySurplus.toString().includes("(")) {
+                            values["6"] = "deficit";
+                            values["10"] = "This deficit can be funded by bonus and other income.";
+                        } else {
+                            values["6"] = "surplus";
+                            values["10"] = "This surplus can be used to fund your financial goals.";
                         }
                     }
                     break;
@@ -151,15 +162,6 @@ function processSheetData(data) {
                     break;
                 }
             }
-        }
-
-        // Check if the value contains parentheses to determine if it's a deficit
-        if (values["7"] && values["7"].toString().includes("(")) {
-            values["6"] = "deficit";
-            values["10"] = "This deficit can be funded by bonus and other income.";
-        } else {
-            values["6"] = "surplus";
-            values["10"] = "This surplus can be used to fund your financial goals.";
         }
 
         for (const row of cashFlowData) {
