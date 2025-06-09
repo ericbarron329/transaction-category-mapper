@@ -420,14 +420,7 @@ export async function fillDocxWithValues(values) {
         mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     });
     
-    // Create download link
-   
-    const url = window.URL.createObjectURL(out);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'GeneratedReport.docx';
-    a.click();
-    window.URL.revokeObjectURL(url);
+    return out;
 }
 
 export async function generateDocument(sheetUrl) {
@@ -439,9 +432,9 @@ export async function generateDocument(sheetUrl) {
         const values = processSheetData(sheetData);
         
         // Step 3: Generate the document with our values
-        await fillDocxWithValues(values);
+        const docBlob = await fillDocxWithValues(values);
         
-        return { values, sheetData };
+        return { values, docBlob };
     } catch (error) {
         console.error('Error in document generation pipeline:', error);
         throw error;
