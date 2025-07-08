@@ -7,7 +7,7 @@ export async function extractValuesFromSheets(sheetUrl) {
     const sheetNames = ["Data Input", "Net Worth", "Transactions Raw", 
         "Cash Flow", "Merchant Expense Analysis", "Assumptions", "Expenses", 
         "Positions", "Retirement Calculator", "Retirement Summary", "Investment Accounts", 
-        "Education Accounts", "Education Summary", "New Home", "Term Life Calc"]; 
+        "Education Accounts", "Education Summary", "New Home", "Term Life Calc, Retirement Accounts"]; 
   
     const results = {};
   
@@ -256,6 +256,24 @@ function processSheetData(data) {
         values["sum"] = `$${sum.toLocaleString()}`;
     }
 
+    if (data["Investment Accounts"]) {
+        const investmentAccountsData = data["Investment Accounts"];
+
+        for (const row of investmentAccountsData) {
+            if (row[1] == "Stock") {
+                values["47"] == row[2];
+            } else if (row[1] == "Bonds") {
+                values["48"] == row[2];
+            } else if (row[1] == "Cash") {
+                values["49"] == row[2];
+            } else if (row[1] == "US") {
+                values["50"] == row[2];
+            } else if (row[1] == "Developed & Emerging Markets") {
+                values["51"] == row[2];
+            }
+        }
+    }
+
     if (data["Net Worth"]) {
         const netWorthData = data["Net Worth"];
         for (const row of netWorthData) {
@@ -356,6 +374,24 @@ function processSheetData(data) {
         }
     }
 
+    if (data["Retirement Accounts"]) {
+        const retirementAccountsData = data["Retirement Accounts"];
+
+        for (const row in retirementAccountsData) {
+            if (row[1] == "Stock") {
+                values["42"] = row[2];
+            } else if (row[1] == "Bonds") {
+                values["43"] = row[2];
+            } else if (row[1] == "Cash") {
+                values["44"] = row[2];
+            } else if (row[1] == "US") {
+                values["45"] = row[2];
+            } else if (row[1] == "Developed & Emerging Markets") {
+                values["46"] = row[2];
+            }
+        }
+    }
+
     if (data["New Home"]) {
         const newHomeData = data["New Home"];
         for (const row of newHomeData) {
@@ -416,6 +452,8 @@ function processSheetData(data) {
             }
         }
     }
+
+
 
     console.log("Values: ", values);
 
