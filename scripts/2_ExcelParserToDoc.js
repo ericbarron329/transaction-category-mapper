@@ -7,7 +7,7 @@ export async function extractValuesFromSheets(sheetUrl) {
     const sheetNames = ["Data Input", "Net Worth", "Transactions Raw", 
         "Cash Flow", "Merchant Expense Analysis", "Assumptions", "Expenses", 
         "Positions", "Retirement Calculator", "Retirement Summary", "Investment Accounts", 
-        "Education Accounts", "Education Summary", "New Home", "Term Life Calc, Retirement Accounts"]; 
+        "Education Accounts", "Education Summary", "New Home", "Term Life Calc", "Retirement Accounts"]; 
   
     const results = {};
   
@@ -56,6 +56,9 @@ function cleanDollarAmount(value, roundDigits) {
 
 function processSheetData(data) {
     const values = {};
+    console.log("=== Processing sheet data ===");
+    console.log("Available sheets:", Object.keys(data));
+    console.log("Raw data:", data);
     
     // NET WORHT AND FINANCIAL GOALS
     if (data["Net Worth"]) {
@@ -258,20 +261,33 @@ function processSheetData(data) {
 
     if (data["Investment Accounts"]) {
         const investmentAccountsData = data["Investment Accounts"];
+        console.log("Investment Accounts data found:", investmentAccountsData);
 
         for (const row of investmentAccountsData) {
-            if (row[1] == "Stock") {
-                values["47"] == row[2];
-            } else if (row[1] == "Bonds") {
-                values["48"] == row[2];
-            } else if (row[1] == "Cash") {
-                values["49"] == row[2];
-            } else if (row[1] == "US") {
-                values["50"] == row[2];
-            } else if (row[1] == "Developed & Emerging Markets") {
-                values["51"] == row[2];
+            console.log("Processing investment row:", row);
+            if (row[1] === "Stock") {
+                values["47"] = row[2];
+                console.log("Found Investment Stock:", row[2]);
+            } 
+            if (row[1] === "Bonds") {
+                values["48"] = row[2];
+                console.log("Found Investment Bonds:", row[2]);
+            } 
+            if (row[1] === "Cash") {
+                values["49"] = row[2];
+                console.log("Found Investment Cash:", row[2]);
+            }
+            if (row[1] === "US") {
+                values["50"] = row[2];
+                console.log("Found Investment US:", row[2]);
+            } 
+            if (row[1] === "Developed & Emerging Markets") {
+                values["51"] = row[2];
+                console.log("Found Investment Developed & Emerging Markets:", row[2]);
             }
         }
+    } else {
+        console.log("No 'Investment Accounts' sheet found. Available sheets:", Object.keys(data));
     }
 
     if (data["Net Worth"]) {
@@ -376,20 +392,33 @@ function processSheetData(data) {
 
     if (data["Retirement Accounts"]) {
         const retirementAccountsData = data["Retirement Accounts"];
+        console.log("Retirement Accounts data found:", retirementAccountsData);
 
-        for (const row in retirementAccountsData) {
-            if (row[1] == "Stock") {
+        for (const row of retirementAccountsData) {
+            console.log("Processing retirement row:", row);
+            if (row[1] === "Stock") {
                 values["42"] = row[2];
-            } else if (row[1] == "Bonds") {
+                console.log("Found Stock:", row[2]);
+            } 
+             if (row[1] === "Bonds") {
                 values["43"] = row[2];
-            } else if (row[1] == "Cash") {
+                console.log("Found Bonds:", row[2]);
+            }
+             if (row[1] === "Cash") {
                 values["44"] = row[2];
-            } else if (row[1] == "US") {
+                console.log("Found Cash:", row[2]);
+            }
+             if (row[1] === "US") {
                 values["45"] = row[2];
-            } else if (row[1] == "Developed & Emerging Markets") {
+                console.log("Found US:", row[2]);
+            } 
+             if (row[1] === "Developed & Emerging Markets") {
                 values["46"] = row[2];
+                console.log("Found Developed & Emerging Markets:", row[2]);
             }
         }
+    } else {
+        console.log("No 'Retirement Accounts' sheet found. Available sheets:", Object.keys(data));
     }
 
     if (data["New Home"]) {
