@@ -263,27 +263,29 @@ function processSheetData(data) {
         const investmentAccountsData = data["Investment Accounts"];
         console.log("Investment Accounts data found:", investmentAccountsData);
 
+        let flags = [True, True, True, True, True]
+
         for (const row of investmentAccountsData) {
             console.log("Processing investment row:", row);
-            if (row[1] === "Stock") {
+            if (row[1] === "Stock" && flags[0]) {
                 values["47"] = row[2];
-                console.log("Found Investment Stock:", row[2]);
+                flags[0] = False;
             } 
-            if (row[1] === "Bonds") {
+            if (row[1] === "Bonds" && flags[1]) {
                 values["48"] = row[2];
-                console.log("Found Investment Bonds:", row[2]);
+                flags[1] = False;
             } 
-            if (row[1] === "Cash") {
+            if (row[1] === "Cash" && flags[2]) {
                 values["49"] = row[2];
-                console.log("Found Investment Cash:", row[2]);
+                flags[2] = False;
             }
-            if (row[1] === "US") {
+            if (row[1] === "US" && flags[3]) {
                 values["50"] = row[2];
-                console.log("Found Investment US:", row[2]);
+                flags[3] = False;
             } 
-            if (row[1] === "Developed & Emerging Markets") {
+            if (row[1] === "Developed & Emerging Markets" && flags[4]) {
                 values["51"] = row[2];
-                console.log("Found Investment Developed & Emerging Markets:", row[2]);
+                flags[4] = False;
             }
         }
     } else {
@@ -394,27 +396,29 @@ function processSheetData(data) {
         const retirementAccountsData = data["Retirement Accounts"];
         console.log("Retirement Accounts data found:", retirementAccountsData);
 
+        let flags = [True, True, True, True, True]
+
         for (const row of retirementAccountsData) {
             console.log("Processing retirement row:", row);
-            if (row[1] === "Stock") {
+            if (row[1] === "Stock" && flags[0]) {
                 values["42"] = row[2];
-                console.log("Found Stock:", row[2]);
+                flags[0] = False;
             } 
-             if (row[1] === "Bonds") {
+             if (row[1] === "Bonds" && flags[0]) {
                 values["43"] = row[2];
-                console.log("Found Bonds:", row[2]);
+                flags[1] = False;
             }
-             if (row[1] === "Cash") {
+             if (row[1] === "Cash" && flags[0]) {
                 values["44"] = row[2];
-                console.log("Found Cash:", row[2]);
+                flags[2] = False;
             }
-             if (row[1] === "US") {
+             if (row[1] === "US" && flags[0]) {
                 values["45"] = row[2];
-                console.log("Found US:", row[2]);
+                flags[3] = False;
             } 
-             if (row[1] === "Developed & Emerging Markets") {
+             if (row[1] === "Developed & Emerging Markets" && flags[0]) {
                 values["46"] = row[2];
-                console.log("Found Developed & Emerging Markets:", row[2]);
+                flags[4] = False;
             }
         }
     } else {
