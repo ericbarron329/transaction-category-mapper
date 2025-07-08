@@ -263,29 +263,29 @@ function processSheetData(data) {
         const investmentAccountsData = data["Investment Accounts"];
         console.log("Investment Accounts data found:", investmentAccountsData);
 
-        let flags = [True, True, True, True, True]
+        let flags = [true, true, true, true, true]
 
         for (const row of investmentAccountsData) {
             console.log("Processing investment row:", row);
             if (row[1] === "Stock" && flags[0]) {
                 values["47"] = row[2];
-                flags[0] = False;
+                flags[0] = false;
             } 
             if (row[1] === "Bonds" && flags[1]) {
                 values["48"] = row[2];
-                flags[1] = False;
+                flags[1] = false;
             } 
             if (row[1] === "Cash" && flags[2]) {
                 values["49"] = row[2];
-                flags[2] = False;
+                flags[2] = false;
             }
             if (row[1] === "US" && flags[3]) {
                 values["50"] = row[2];
-                flags[3] = False;
+                flags[3] = false;
             } 
             if (row[1] === "Developed & Emerging Markets" && flags[4]) {
                 values["51"] = row[2];
-                flags[4] = False;
+                flags[4] = false;
             }
         }
     } else {
@@ -396,29 +396,29 @@ function processSheetData(data) {
         const retirementAccountsData = data["Retirement Accounts"];
         console.log("Retirement Accounts data found:", retirementAccountsData);
 
-        let flags = [True, True, True, True, True]
+        let flags = [true, true, true, true, true]
 
         for (const row of retirementAccountsData) {
             console.log("Processing retirement row:", row);
             if (row[1] === "Stock" && flags[0]) {
                 values["42"] = row[2];
-                flags[0] = False;
+                flags[0] = false;
             } 
              if (row[1] === "Bonds" && flags[0]) {
                 values["43"] = row[2];
-                flags[1] = False;
+                flags[1] = false;
             }
              if (row[1] === "Cash" && flags[0]) {
                 values["44"] = row[2];
-                flags[2] = False;
+                flags[2] = false;
             }
              if (row[1] === "US" && flags[0]) {
                 values["45"] = row[2];
-                flags[3] = False;
+                flags[3] = false;
             } 
              if (row[1] === "Developed & Emerging Markets" && flags[0]) {
                 values["46"] = row[2];
-                flags[4] = False;
+                flags[4] = false;
             }
         }
     } else {
