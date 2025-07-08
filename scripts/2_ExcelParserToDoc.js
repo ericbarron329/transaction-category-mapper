@@ -404,19 +404,19 @@ function processSheetData(data) {
                 values["42"] = row[2];
                 flags[0] = false;
             } 
-             if (row[1] === "Bonds" && flags[0]) {
+             if (row[1] === "Bonds" && flags[1]) {
                 values["43"] = row[2];
                 flags[1] = false;
             }
-             if (row[1] === "Cash" && flags[0]) {
+             if (row[1] === "Cash" && flags[2]) {
                 values["44"] = row[2];
                 flags[2] = false;
             }
-             if (row[1] === "US" && flags[0]) {
+             if (row[1] === "US" && flags[3]) {
                 values["45"] = row[2];
                 flags[3] = false;
             } 
-             if (row[1] === "Developed & Emerging Markets" && flags[0]) {
+             if (row[1] === "Developed & Emerging Markets" && flags[4]) {
                 values["46"] = row[2];
                 flags[4] = false;
             }
