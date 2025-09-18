@@ -148,7 +148,7 @@ function processSheetData(data) {
                         if (currentIndex + 1 < cashFlowData.length) {
                             const nextRow = cashFlowData[currentIndex + 1];
                             if (nextRow && nextRow[3]) {
-                                values["9"] = cleanDollarAmount(nextRow[3], 0);
+                                values["9"] = cleanDollarAmount(nextRow[3], 2);
                             }
                         }
 
@@ -218,19 +218,19 @@ function processSheetData(data) {
 
         for (const row of expensesData) {
             if (row[1] === "Food") {
-                values["15"] = cleanDollarAmount(row[7], 0);
+                values["15"] = cleanDollarAmount(row[7], 2);
             }
             if (row[1] === "Shopping") {
-                values["16"] = cleanDollarAmount(row[7], 0);
+                values["16"] = cleanDollarAmount(row[7], 2);
             }
             if (row[1] === "Travel") {
-                values["17"] = cleanDollarAmount(row[6], 0);
+                values["17"] = cleanDollarAmount(row[6], 2);
             }
             if (row[1] === "Entertainment") {
-                values["18"] = cleanDollarAmount(row[7], 0);
+                values["18"] = cleanDollarAmount(row[7], 2);
             }
             if (row[1] === "Health / Personal Care") {
-                values["19"] = cleanDollarAmount(row[7], 0);
+                values["19"] = cleanDollarAmount(row[7], 2);
             }
         }
     }
@@ -256,7 +256,8 @@ function processSheetData(data) {
                 }
             }
         }
-        values["sum"] = `$${sum.toLocaleString()}`;
+        values["sum"] = cleanDollarAmount(sum, 2);
+        // values["sum"] = `$${sum.toLocaleString()}`;
     }
 
     if (data["Investment Accounts"]) {
@@ -296,7 +297,7 @@ function processSheetData(data) {
         const netWorthData = data["Net Worth"];
         for (const row of netWorthData) {
             if (row[1] === "Liquid Assets") {
-                values["20"] = cleanDollarAmount(row[2], 0);
+                values["20"] = cleanDollarAmount(row[2], 2);
             }
         }
 
