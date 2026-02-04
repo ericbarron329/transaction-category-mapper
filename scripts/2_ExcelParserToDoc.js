@@ -180,7 +180,7 @@ function processSheetData(data) {
         for (const row of cashFlowData) {
             if (row[1] === "Effective Tax Rate") {
                 if (row[4]) {
-                    values["11"] = row[5];
+                    values["11"] = row[3];
                 }
                 break;
             }
